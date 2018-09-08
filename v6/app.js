@@ -10,11 +10,27 @@ var express         = require('express'),
     seedDB          = require('./seeds')
 
 
-mongoose.connect("mongodb://localhost:27017/yelp_camp_v4", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost:27017/yelp_camp_v6", { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 seedDB();
+
+// PASSPORT CONFIGURATION
+app.use(require('express-session')({
+    secret: 'Adopt the pace of nature: her secret is patience',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ===========================
+// ROUTES
+// ===========================
 
 app.get("/", function(req, res){
     res.render("landing");
@@ -90,6 +106,28 @@ app.post("/campgrounds/:id/comments", function(req, res){
                 }
             });
         }
+    });
+});
+
+// ===========================
+// AUTH ROUTES
+// ===========================
+app.get('/register', function(req, res){
+    res.render('register');
+});
+
+// Handle sign up logic
+app.post('/register', function(req, res){
+    var newUser = new User({username: req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            console.log(err);
+            return res.render('register');
+        }
+        console.log(user);
+        passport.authenticate('local')(req, res, function(){
+            res.redirect('/campgrounds');
+        });
     });
 });
 
