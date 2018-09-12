@@ -1,3 +1,7 @@
 figure img {
     width: 100%;
 }
+
+.form-delete {
+    display: inline;
+}
