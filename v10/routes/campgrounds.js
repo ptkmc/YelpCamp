@@ -29,12 +29,10 @@ router.post("/", isLoggedIn, function(req, res){
         username: req.user.username
     }
     var newCampground = {name: name, image: image, description: desc, author: author};
-    console.log(req.user);
     Campground.create(newCampground, function(err, newlyCreated){
         if(err){
             console.log(err);
         } else {
-            console.log(newlyCreated);
             res.redirect("/campgrounds");
         }
     });
